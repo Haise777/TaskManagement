@@ -1,3 +1,7 @@
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using TaskManagement.API.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -5,6 +9,21 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Identity configuration
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(o =>
+{
+    o.Password.RequiredLength = 8;
+    o.User.RequireUniqueEmail = true;
+})
+    .AddEntityFrameworkStores<MyDbContext>()
+    .AddDefaultTokenProviders();
+
+// DbContext configuration
+builder.Services.AddDbContext<MyDbContext>(o =>
+{
+    o.UseSqlServer(builder.Configuration.GetConnectionString("TestDb"));
+});
 
 var app = builder.Build();
 
