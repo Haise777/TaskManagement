@@ -29,8 +29,7 @@ namespace TaskManagement.API.Services
             var result = await _userManager.CreateAsync(newUser, user.Password);
             if (!result.Succeeded) return result;
 
-            // Can I bond both together in a single transaction?
-            result = await _userManager.AddToRoleAsync(newUser, "Admin");
+            result = await _userManager.AddToRoleAsync(newUser, "User");
 
             return result;
         }

@@ -25,10 +25,11 @@ namespace TaskManagement.API.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
+            // "Auto-Login" the user after signup process
             var user = await _authService.ValidateUserLoginAsync(userSignUp);
             var token = await _authService.GenerateJWTTokenAsync(user);
 
-            return Ok(user);
+            return Ok(token);
         }
 
         [HttpPost("login")]

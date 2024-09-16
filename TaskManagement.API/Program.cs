@@ -20,21 +20,25 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(o =>
 {
     o.Password.RequiredLength = 8;
+    o.Password.RequireNonAlphanumeric = false;
+    o.Password.RequireDigit = false;
+    o.Password.RequiredUniqueChars = 0;
+
     o.User.RequireUniqueEmail = true;
 })
     .AddEntityFrameworkStores<MyDbContext>()
     .AddDefaultTokenProviders();
 
 // Auth configuration
-builder.Services.AddAuthentication(opt =>
+builder.Services.AddAuthentication(o =>
 {
-    opt.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-    opt.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+    o.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
 
-}).AddJwtBearer(opt =>
+}).AddJwtBearer(o =>
 {
-    opt.TokenValidationParameters = new TokenValidationParameters
+    o.TokenValidationParameters = new TokenValidationParameters
     {
         ValidIssuer = config.GetSection("JWT:Issuer").Value,
         ValidAudience = config.GetSection("JWT:Audience").Value,
@@ -47,6 +51,12 @@ builder.Services.AddAuthentication(opt =>
         ValidateLifetime = true,
         RequireExpirationTime = true,
     }; 
+});
+
+builder.Services.AddAuthorization(o =>
+{
+    o.AddPolicy("AdminOnly", p =>
+    p.RequireRole("Admin"));
 });
 
 // DbContext configuration
@@ -64,6 +74,7 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
