@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskManagement.API.Data;
+using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers
 {
@@ -7,9 +8,24 @@ namespace TaskManagement.API.Controllers
     [ApiController]
     public class AuthController : ControllerBase
     {
+        private readonly AuthService _authService;
+
+        public AuthController(AuthService authService)
+        {
+            _authService = authService;
+        }
+
         [HttpPost("signup")]
         public async Task<IActionResult> AttemptSignUp([FromBody] UserSignUp userSignUp)
         {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var result = await _authService.RegisterUserAsync(userSignUp);
+            if (!result.Succeeded)
+                return BadRequest(result.Errors);
+
+            await _authService.LoginAsync(userSignUp);
             throw new NotImplementedException();
         }
 
