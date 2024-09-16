@@ -13,7 +13,7 @@ namespace TaskManagement.API.Services
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<IdentityError>?> ChangePasswordAsync(ClaimsPrincipal user, ChangePassword passwords)
+        public async Task<IEnumerable<IdentityError>?> ChangePasswordAsync(ClaimsPrincipal user, PasswordChange passwords)
         {
             var identityUser = await _userManager.FindByIdAsync(
                 user.FindFirst(ClaimTypes.NameIdentifier)?.Value);

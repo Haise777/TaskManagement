@@ -2,7 +2,7 @@
 
 namespace TaskManagement.API.Data
 {
-    public class ChangePassword
+    public class PasswordChange
     {
         [Required]
         public string Password { get; set; }
