@@ -25,14 +25,24 @@ namespace TaskManagement.API.Controllers
             if (!result.Succeeded)
                 return BadRequest(result.Errors);
 
-            await _authService.LoginAsync(userSignUp);
-            throw new NotImplementedException();
+            var user = await _authService.ValidateUserLoginAsync(userSignUp);
+            var token = await _authService.GenerateJWTTokenAsync(user);
+
+            return Ok(user);
         }
 
         [HttpPost("login")]
         public async Task<IActionResult> AttemptLogin([FromBody]UserLogin userLogin)
         {
-            throw new NotImplementedException();
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var user = await _authService.ValidateUserLoginAsync(userLogin);
+            if (user == null)
+                return BadRequest("Invalid credentials Placeholder Error");
+
+            var token = await _authService.GenerateJWTTokenAsync(user);
+            return Ok(token);
         }
     }
 }
