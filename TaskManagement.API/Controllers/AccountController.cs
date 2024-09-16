@@ -27,5 +27,7 @@ namespace TaskManagement.API.Controllers
 
             return Ok("Password change succeed");
         }
+
+        // Add action to allow a user to change its username
     }
 }

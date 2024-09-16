@@ -18,7 +18,7 @@ builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AccountService>();
 
 // Identity configuration
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(o =>
+builder.Services.AddIdentity<User, IdentityRole>(o =>
 {
     o.Password.RequiredLength = 8;
     o.Password.RequireNonAlphanumeric = false;

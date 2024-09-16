@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using TaskManagement.API.Data;
+using TaskManagement.API.Models;
 using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers
@@ -27,7 +28,7 @@ namespace TaskManagement.API.Controllers
 
             // "Auto-Login" the user after signup process
             var user = await _authService.ValidateUserLoginAsync(userSignUp);
-            var token = await _authService.GenerateJWTTokenAsync(user);
+            var token = await _authService.GenerateJWTTokenAsync((User)user);
 
             return Ok(token);
         }
@@ -42,7 +43,7 @@ namespace TaskManagement.API.Controllers
             if (user == null)
                 return BadRequest("Invalid credentials Placeholder Error");
 
-            var token = await _authService.GenerateJWTTokenAsync(user);
+            var token = await _authService.GenerateJWTTokenAsync((User)user);
             return Ok(token);
         }
     }

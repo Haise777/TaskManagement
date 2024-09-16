@@ -4,15 +4,16 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TaskManagement.API.Data;
+using TaskManagement.API.Models;
 
 namespace TaskManagement.API.Services
 {
     public class AuthService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
         private readonly IConfiguration _config;
 
-        public AuthService(UserManager<IdentityUser> userManager, IConfiguration config)
+        public AuthService(UserManager<User> userManager, IConfiguration config)
         {
             _userManager = userManager;
             _config = config;
@@ -20,7 +21,7 @@ namespace TaskManagement.API.Services
 
         public async Task<IdentityResult> RegisterUserAsync(UserSignUp user)
         {
-            var newUser = new IdentityUser
+            var newUser = new User
             {
                 UserName = user.UserName,
                 Email = user.Email
@@ -46,7 +47,7 @@ namespace TaskManagement.API.Services
             return identityUser;
         }
 
-        public async Task<string> GenerateJWTTokenAsync(IdentityUser user)
+        public async Task<string> GenerateJWTTokenAsync(User user)
         {
             var key = Encoding.UTF8.GetBytes(_config.GetSection("JWT:SecretKey").Value);
             var claims = await GetUserClaims(user);
@@ -72,7 +73,7 @@ namespace TaskManagement.API.Services
             return token;
         }
 
-        private async Task<ClaimsIdentity> GetUserClaims(IdentityUser user)
+        private async Task<ClaimsIdentity> GetUserClaims(User user)
         {
             var claims = new ClaimsIdentity(new Claim[]
             {

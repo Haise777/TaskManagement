@@ -1,14 +1,15 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using TaskManagement.API.Data;
+using TaskManagement.API.Models;
 
 namespace TaskManagement.API.Services
 {
     public class AccountService
     {
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<User> _userManager;
 
-        public AccountService(UserManager<IdentityUser> userManager)
+        public AccountService(UserManager<User> userManager)
         {
             _userManager = userManager;
         }

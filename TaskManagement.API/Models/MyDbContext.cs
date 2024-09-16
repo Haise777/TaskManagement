@@ -4,13 +4,15 @@ using Microsoft.EntityFrameworkCore;
 
 namespace TaskManagement.API.Models
 {
-    public class MyDbContext : IdentityDbContext
+    public class MyDbContext : IdentityDbContext<User>
     {
         public MyDbContext(DbContextOptions options) : base(options)
         {
 
         }
 
+        // Entities
+        public DbSet<MyTask> Tasks { get; set; }
 
         // Seeding of default roles and admin account
         protected override void OnModelCreating(ModelBuilder builder)
@@ -22,7 +24,7 @@ namespace TaskManagement.API.Models
                 new IdentityRole { Id = "2", Name = "User", NormalizedName = "USER" }
                 );
 
-            var defaultAdminUser = new IdentityUser
+            var defaultAdminUser = new User
             {
                 UserName = "admin",
                 NormalizedUserName = "ADMIN",
@@ -30,10 +32,10 @@ namespace TaskManagement.API.Models
                 Email = "admin@admin.com",
                 NormalizedEmail = "ADMIN@ADMIN.COM",
                 EmailConfirmed = true,
-                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "Admin123456789")
+                PasswordHash = new PasswordHasher<User>().HashPassword(null, "Admin123456789")
             };
 
-            builder.Entity<IdentityUser>().HasData(defaultAdminUser);
+            builder.Entity<User>().HasData(defaultAdminUser);
 
             builder.Entity<IdentityUserRole<string>>().HasData(
                 new IdentityUserRole<string>
@@ -41,6 +43,19 @@ namespace TaskManagement.API.Models
                     RoleId = "1",
                     UserId = defaultAdminUser.Id,
                 });
+
+            // Creates the many-to-many relationship between Users and Tasks
+            builder.Entity<UserTask>().HasKey(ut => new { ut.UserId, ut.TaskId });
+            builder.Entity<UserTask>()
+                .HasOne(ut => ut.User)
+                .WithMany(ut => ut.UserTasks)
+                .HasForeignKey(ut => ut.UserId);
+
+            builder.Entity<UserTask>()
+                .HasOne(ut => ut.Task)
+                .WithMany(ut => ut.UserTasks)
+                .HasForeignKey(ut => ut.TaskId);
+
         }
     }
 }
