@@ -15,6 +15,7 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<AccountService>();
 
 // Identity configuration
 builder.Services.AddIdentity<IdentityUser, IdentityRole>(o =>

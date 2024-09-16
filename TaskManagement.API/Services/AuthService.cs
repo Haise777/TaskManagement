@@ -31,6 +31,7 @@ namespace TaskManagement.API.Services
 
             result = await _userManager.AddToRoleAsync(newUser, "User");
 
+
             return result;
         }
 
