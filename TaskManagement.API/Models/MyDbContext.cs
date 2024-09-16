@@ -11,5 +11,36 @@ namespace TaskManagement.API.Models
 
         }
 
+
+        // Seeding of default roles and admin account
+        protected override void OnModelCreating(ModelBuilder builder)
+        {
+            base.OnModelCreating(builder);
+
+            builder.Entity<IdentityRole>().HasData(
+                new IdentityRole { Id = "1", Name = "Admin", NormalizedName = "ADMIN"},
+                new IdentityRole { Id = "2", Name = "User", NormalizedName = "USER" }
+                );
+
+            var defaultAdminUser = new IdentityUser
+            {
+                UserName = "admin",
+                NormalizedUserName = "ADMIN",
+                Id = Guid.NewGuid().ToString(),
+                Email = "admin@admin.com",
+                NormalizedEmail = "ADMIN@ADMIN.COM",
+                EmailConfirmed = true,
+                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "AdminAdmin")
+            };
+
+            builder.Entity<IdentityUser>().HasData(defaultAdminUser);
+
+            builder.Entity<IdentityUserRole<string>>().HasData(
+                new IdentityUserRole<string>
+                {
+                    RoleId = "1",
+                    UserId = defaultAdminUser.Id,
+                });
+        }
     }
 }
