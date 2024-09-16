@@ -30,7 +30,7 @@ namespace TaskManagement.API.Models
                 Email = "admin@admin.com",
                 NormalizedEmail = "ADMIN@ADMIN.COM",
                 EmailConfirmed = true,
-                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "AdminAdmin")
+                PasswordHash = new PasswordHasher<IdentityUser>().HashPassword(null, "Admin123456789")
             };
 
             builder.Entity<IdentityUser>().HasData(defaultAdminUser);

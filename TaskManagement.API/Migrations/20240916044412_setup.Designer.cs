@@ -12,8 +12,8 @@ using TaskManagement.API.Models;
 namespace TaskManagement.API.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20240916022117_Added seeding")]
-    partial class Addedseeding
+    [Migration("20240916044412_setup")]
+    partial class setup
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -54,14 +54,14 @@ namespace TaskManagement.API.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "34247642-9e6b-4040-80d5-69b4326719ab",
+                            ConcurrencyStamp = "39557d20-4cc9-453d-a711-a76d06154ff7",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "5bf82251-313a-4d9f-8fa2-6214d7ea53b4",
+                            ConcurrencyStamp = "e2a1eb7d-f05c-41ce-b0da-6b3ac0e7aa8e",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -159,17 +159,17 @@ namespace TaskManagement.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "dc03fe7e-7842-44c5-a4ca-852a05e54403",
+                            Id = "10691a31-2518-4b7d-b6b4-86b15f9e0987",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "6322832a-b63b-49fd-8ba0-8e192ae142a5",
+                            ConcurrencyStamp = "d14bde44-bab7-4a04-a0b1-55c36277d69f",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAEIlA2aFTkuCGpngUBbEI9k2v0s/ynQlB4313iaL/G3EDEVGuWfDhDgHBrL83Wo0Zjg==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEL7sStrCLaxdLC0HLJgGtK/LMFk79jlAhBbUn5qSTDqHcmwYeOARubg+BUZ+BA6MAw==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "f5674ca8-217b-4247-8add-89a4bf33f6b7",
+                            SecurityStamp = "1b814409-0491-4ce6-9250-7db50ce2f2e9",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
@@ -239,7 +239,7 @@ namespace TaskManagement.API.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "dc03fe7e-7842-44c5-a4ca-852a05e54403",
+                            UserId = "10691a31-2518-4b7d-b6b4-86b15f9e0987",
                             RoleId = "1"
                         });
                 });

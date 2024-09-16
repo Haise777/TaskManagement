@@ -10,10 +10,12 @@ namespace TaskManagement.API.Services
     public class AuthService
     {
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IConfiguration _config;
 
-        public AuthService(UserManager<IdentityUser> userManager)
+        public AuthService(UserManager<IdentityUser> userManager, IConfiguration config)
         {
             _userManager = userManager;
+            _config = config;
         }
 
         public async Task<IdentityResult> RegisterUserAsync(UserSignUp user)
@@ -46,15 +48,18 @@ namespace TaskManagement.API.Services
 
         public async Task<string> GenerateJWTTokenAsync(IdentityUser user)
         {
-            var key = Encoding.UTF8.GetBytes("secret");
+            var key = Encoding.UTF8.GetBytes(_config.GetSection("JWT:SecretKey").Value);
             var claims = await GetUserClaims(user);
+            var issuer = _config.GetSection("JWT:Issuer").Value;
+            var audience = _config.GetSection("JWT:Audience").Value;
+            var expires = DateTime.UtcNow.AddMinutes(int.Parse(_config.GetSection("JWT:Expires").Value));
 
             var tokenDescriptor = new SecurityTokenDescriptor
             {
                 Subject = claims,
-                Issuer = "",
-                Audience = "",
-                Expires = DateTime.UtcNow,
+                Issuer = issuer,
+                Audience = audience,
+                Expires = expires,
                 SigningCredentials = new SigningCredentials(
                     new SymmetricSecurityKey(key),
                     SecurityAlgorithms.HmacSha256Signature)
@@ -64,7 +69,6 @@ namespace TaskManagement.API.Services
             var token = tokenHandler.WriteToken(
                 tokenHandler.CreateToken(tokenDescriptor));
 
-            throw new NotImplementedException();
             return token;
         }
 
