@@ -60,14 +60,11 @@ namespace TaskManagement.API.Services
             if (!CheckIfAllowed(user, dbTask.AuthorId))
                 return false;
 
-            var userTasks = LinkUsersToTask(modifiedTask.AssignedUsers, taskId);
-            var filteredUserTasks = userTasks.Where(x => !(dbTask.UserTasks.Any(b => b.UserId == x.UserId)));
-
             dbTask.Title = modifiedTask.Title;
             dbTask.Description = modifiedTask.Description;
             dbTask.LastUpdated = DateTime.UtcNow;
-            
-            foreach (var filteredUserTask in filteredUserTasks)
+            dbTask.UserTasks.Clear();
+            foreach (var filteredUserTask in LinkUsersToTask(modifiedTask.AssignedUsers, taskId))
                 dbTask.UserTasks.Add(filteredUserTask);
 
             await _db.SaveChangesAsync();
