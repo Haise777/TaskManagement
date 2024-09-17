@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using TaskManagement.API.Data;
-using TaskManagement.API.Models;
+using TaskManagement.API.Data.DataTransfer;
+using TaskManagement.API.Data.Models;
 using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers

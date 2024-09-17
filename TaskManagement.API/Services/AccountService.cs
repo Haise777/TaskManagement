@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using TaskManagement.API.Data.DataTransfer;
-using TaskManagement.API.Models;
+using TaskManagement.API.Data.Models;
 
 namespace TaskManagement.API.Services
 {
@@ -20,6 +20,17 @@ namespace TaskManagement.API.Services
                 user.FindFirst(ClaimTypes.NameIdentifier)?.Value);
 
             var result = await _userManager.ChangePasswordAsync(identityUser, passwords.Password, passwords.NewPassword);
+
+            if (!result.Succeeded)
+                return result.Errors;
+
+            return null;
+        }
+
+        internal async Task<IEnumerable<IdentityError>?> ChangeUsernameAsync(ClaimsPrincipal user, Username newUsername)
+        {
+            var iUser = await _userManager.GetUserAsync(user);
+            var result = await _userManager.SetUserNameAsync(iUser, newUsername.NewUsername);
 
             if (!result.Succeeded)
                 return result.Errors;

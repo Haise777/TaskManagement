@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManagement.API.Data;
+using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers
@@ -29,5 +29,13 @@ namespace TaskManagement.API.Controllers
         }
 
         [HttpPost("changeUsername")]
+        public async Task<IActionResult> ChangeUsername([FromBody] Username newUsername)
+        {
+            var result = await _accountService.ChangeUsernameAsync(HttpContext.User, newUsername);
+            if (result is not null)
+                return BadRequest(result);
+
+            return Ok("Username changed");
+        }
     }
 }

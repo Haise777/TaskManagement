@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using TaskManagement.API.Data.DataTransfer;
-using TaskManagement.API.Models;
+using TaskManagement.API.Data.Models;
 
 namespace TaskManagement.API.Services
 {

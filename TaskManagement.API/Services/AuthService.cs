@@ -4,7 +4,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using TaskManagement.API.Data.DataTransfer;
-using TaskManagement.API.Models;
+using TaskManagement.API.Data.Models;
 
 namespace TaskManagement.API.Services
 {
