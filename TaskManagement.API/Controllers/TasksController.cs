@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
+using TaskManagement.API.Data;
 using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers
@@ -18,13 +19,20 @@ namespace TaskManagement.API.Controllers
             _taskService = taskService;
         }
 
-        [HttpGet]
+        [HttpGet("getassignedtasks")]
         public async Task<IActionResult> GetAssignedTasks()
         {
             var tasks = await _taskService.GetAllAssignedTasksAsync(
                 HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
             return Ok(tasks);
+        }
+
+        [HttpPost("createtask")]
+        public async Task<IActionResult> CreateTask([FromBody]TaskToBeCreated newTask)
+        {
+            await _taskService.CreateNewTaskAsync(HttpContext.User,newTask);
+            return Ok("Success");
         }
     }
 }

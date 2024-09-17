@@ -16,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AccountService>();
+builder.Services.AddScoped<TaskService>();
 
 // Identity configuration
 builder.Services.AddIdentity<User, IdentityRole>(o =>
