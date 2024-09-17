@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using TaskManagement.API.Data;
 using TaskManagement.API.Models;
 
@@ -26,7 +27,8 @@ namespace TaskManagement.API.Services
             return await TranslateTasksAsync(userAssignedTasks);
         }
 
-        public async Task<bool> CreateNewTaskAsync(ClaimsPrincipal user, TaskToBeCreated newTask)
+        //Should return based on the success of the operation
+        public async Task<bool> CreateNewTaskAsync(ClaimsPrincipal user, TaskDto newTask)
         {
             var iUser = await _userManager.GetUserAsync(user);
 
@@ -54,6 +56,51 @@ namespace TaskManagement.API.Services
             //TODO implement a try catch error handling in the future
             _db.Tasks.Add(task);
             await _db.SaveChangesAsync();
+
+            return true;
+        }
+
+        //Should return based on the success of the operation
+        public async Task<bool> ModifyTaskAsync(ClaimsPrincipal user, MyTask task)
+        {
+            /*TODO Current implementation is not working properly
+             What the user has to send as dto needs to be redone and properly mapped
+             to the current MyTask model as it is too complex for the client to send it
+            */ throw new NotImplementedException();
+            
+
+            var dbTask = await _db.Tasks.FirstAsync(x => x.Id == task.Id);
+
+            if (!CheckIfAuthor(user, dbTask.AuthorId))
+                return false;
+
+            dbTask.Title = task.Title;
+            dbTask.Description = task.Description;
+            dbTask.LastUpdated = DateTime.UtcNow;
+            dbTask.UserTasks = task.UserTasks;
+
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        //Should return based on the success of the operation
+        public async Task<bool> DeleteTaskAsync(ClaimsPrincipal user, int taskId)
+        {
+            var dbTask = await _db.Tasks.FirstAsync(x => x.Id == taskId);
+
+            if (!CheckIfAuthor(user, dbTask.AuthorId))
+                return false;
+            
+            _db.Tasks.Remove(dbTask);
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        private bool CheckIfAuthor(ClaimsPrincipal user, string authorId)
+        {
+            if (authorId != user.FindFirst(ClaimTypes.NameIdentifier)!.Value)
+                if (!user.FindAll(ClaimTypes.Role).Any(x => x.Value == "Admin"))
+                    return false;
 
             return true;
         }
