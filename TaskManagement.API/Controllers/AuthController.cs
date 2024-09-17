@@ -28,7 +28,7 @@ namespace TaskManagement.API.Controllers
 
             // "Auto-Login" the user after signup process
             var user = await _authService.ValidateUserLoginAsync(userSignUp);
-            var token = await _authService.GenerateJWTTokenAsync((User)user);
+            var token = await _authService.GenerateJWTTokenAsync((User)user!);
 
             return Ok(token);
         }
