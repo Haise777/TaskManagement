@@ -29,12 +29,21 @@ namespace TaskManagement.API.Controllers
             return Ok(tasks);
         }
 
+        [HttpGet("getauthortasks/{authorId:guid?}")]
+        public async Task<IActionResult> GetAuthorTasks([FromRoute] string? authorId)
+        {
+            if (authorId == null)
+                authorId = HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+
+            var tasks = await _taskService.GetAllAuthorTasksAsync(authorId);
+
+            return Ok(tasks);
+        }
+
         [HttpPost("modifytask/{taskId}")]
         public async Task<IActionResult> ModifyTask([FromBody] TaskDto modifiedTask, [FromRoute] int taskId)
         {
-
             var result = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId);
-
             return Ok(result);
         }
 
@@ -42,7 +51,6 @@ namespace TaskManagement.API.Controllers
         public async Task<IActionResult> DeleteTask([FromRoute] int taskId)
         {
             var result = await _taskService.DeleteTaskAsync(HttpContext.User, taskId);
-
             return Ok(result);
         }
 

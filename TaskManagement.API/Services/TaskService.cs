@@ -26,6 +26,13 @@ namespace TaskManagement.API.Services
 
             return await TranslateTasksAsync(userAssignedTasks);
         }
+        public async Task<IEnumerable<ReadableTask>> GetAllAuthorTasksAsync(string authorId)
+        {
+            var authorTasks = await _db.Tasks
+                .Where(t => t.AuthorId == authorId).Include(inc => inc.UserTasks).ToListAsync();
+
+            return await TranslateTasksAsync(authorTasks);
+        }
 
         //Should return based on the success of the operation
         public async Task<bool> CreateNewTaskAsync(ClaimsPrincipal user, TaskDto newTask)
