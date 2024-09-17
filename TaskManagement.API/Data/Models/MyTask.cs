@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskManagement.API.Models
+namespace TaskManagement.API.Data.Models
 {
     public class MyTask
     {

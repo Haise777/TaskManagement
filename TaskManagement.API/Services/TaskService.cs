@@ -2,7 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using TaskManagement.API.Data;
+using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Models;
 
 namespace TaskManagement.API.Services

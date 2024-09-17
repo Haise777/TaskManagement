@@ -17,7 +17,7 @@ namespace TaskManagement.API.Controllers
             _accountService = accountService;
         }
 
-        [HttpPost("changepassword")]
+        [HttpPost("changePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] PasswordChange newPassword)
         {
             var result = await _accountService.ChangePasswordAsync(HttpContext.User, newPassword);
@@ -28,6 +28,6 @@ namespace TaskManagement.API.Controllers
             return Ok("Password change succeed");
         }
 
-        // Add action to allow a user to change its username
+        [HttpPost("changeUsername")]
     }
 }

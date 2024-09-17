@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
-using TaskManagement.API.Data;
+using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Models;
 
 namespace TaskManagement.API.Services

@@ -1,4 +1,4 @@
-﻿namespace TaskManagement.API.Data
+﻿namespace TaskManagement.API.Data.DataTransfer
 {
     public class TaskDto
     {
