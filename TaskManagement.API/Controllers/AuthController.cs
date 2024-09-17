@@ -5,7 +5,7 @@ using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class AuthController : ControllerBase
     {

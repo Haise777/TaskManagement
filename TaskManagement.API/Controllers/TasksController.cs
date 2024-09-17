@@ -9,7 +9,7 @@ using TaskManagement.API.Services;
 namespace TaskManagement.API.Controllers
 {
     [Authorize]
-    [Route("api/[controller]")]
+    [Route("[controller]")]
     [ApiController]
     public class TasksController : ControllerBase
     {
