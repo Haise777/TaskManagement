@@ -29,18 +29,17 @@ namespace TaskManagement.API.Controllers
             return Ok(tasks);
         }
 
-        //TODO Not implemented yet
-        [HttpPost("modifytask")]
-        public async Task<IActionResult> ModifyTask([FromBody]MyTask task)
+        [HttpPost("modifytask/{taskId}")]
+        public async Task<IActionResult> ModifyTask([FromBody] TaskDto modifiedTask, [FromRoute] int taskId)
         {
-            return BadRequest("Action not implemented yet");
-            var result = await _taskService.ModifyTaskAsync(HttpContext.User, task);
+
+            var result = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId);
 
             return Ok(result);
         }
 
         [HttpDelete("deletetask/{taskId}")]
-        public async Task<IActionResult> DeleteTask([FromRoute]int taskId)
+        public async Task<IActionResult> DeleteTask([FromRoute] int taskId)
         {
             var result = await _taskService.DeleteTaskAsync(HttpContext.User, taskId);
 
@@ -48,9 +47,9 @@ namespace TaskManagement.API.Controllers
         }
 
         [HttpPost("createtask")]
-        public async Task<IActionResult> CreateTask([FromBody]TaskDto newTask)
+        public async Task<IActionResult> CreateTask([FromBody] TaskDto newTask)
         {
-            await _taskService.CreateNewTaskAsync(HttpContext.User,newTask);
+            await _taskService.CreateNewTaskAsync(HttpContext.User, newTask);
             return Ok("Success");
         }
     }

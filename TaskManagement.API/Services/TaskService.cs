@@ -30,28 +30,18 @@ namespace TaskManagement.API.Services
         //Should return based on the success of the operation
         public async Task<bool> CreateNewTaskAsync(ClaimsPrincipal user, TaskDto newTask)
         {
-            var iUser = await _userManager.GetUserAsync(user);
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
             var task = new MyTask()
             {
-                AuthorId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value,
+                AuthorId = userId,
                 Title = newTask.Title,
                 Description = newTask.Description,
                 Created = DateTime.UtcNow,
-                //TODO add ability to already assign different users in a task creation
             };
 
-            var userTasks = new List<UserTask>()
-            {
-                new UserTask
-                {
-                    Task = task,
-                    User = iUser,
-                    UserId = iUser.Id
-                }
-            };
 
-            task.UserTasks = userTasks;
+            task.UserTasks = LinkUsersToTask(newTask.AssignedUsers, task);
 
             //TODO implement a try catch error handling in the future
             _db.Tasks.Add(task);
@@ -61,23 +51,24 @@ namespace TaskManagement.API.Services
         }
 
         //Should return based on the success of the operation
-        public async Task<bool> ModifyTaskAsync(ClaimsPrincipal user, MyTask task)
+        public async Task<bool> ModifyTaskAsync(ClaimsPrincipal user, TaskDto modifiedTask, int taskId)
         {
-            /*TODO Current implementation is not working properly
-             What the user has to send as dto needs to be redone and properly mapped
-             to the current MyTask model as it is too complex for the client to send it
-            */ throw new NotImplementedException();
-            
+            var dbTask = await _db.Tasks
+                .Where(x => x.Id == taskId)
+                .Include(x => x.UserTasks).SingleAsync();
 
-            var dbTask = await _db.Tasks.FirstAsync(x => x.Id == task.Id);
-
-            if (!CheckIfAuthor(user, dbTask.AuthorId))
+            if (!CheckIfAllowed(user, dbTask.AuthorId))
                 return false;
 
-            dbTask.Title = task.Title;
-            dbTask.Description = task.Description;
+            var userTasks = LinkUsersToTask(modifiedTask.AssignedUsers, taskId);
+            var filteredUserTasks = userTasks.Where(x => !(dbTask.UserTasks.Any(b => b.UserId == x.UserId)));
+
+            dbTask.Title = modifiedTask.Title;
+            dbTask.Description = modifiedTask.Description;
             dbTask.LastUpdated = DateTime.UtcNow;
-            dbTask.UserTasks = task.UserTasks;
+            
+            foreach (var filteredUserTask in filteredUserTasks)
+                dbTask.UserTasks.Add(filteredUserTask);
 
             await _db.SaveChangesAsync();
             return true;
@@ -88,15 +79,49 @@ namespace TaskManagement.API.Services
         {
             var dbTask = await _db.Tasks.FirstAsync(x => x.Id == taskId);
 
-            if (!CheckIfAuthor(user, dbTask.AuthorId))
+            if (!CheckIfAllowed(user, dbTask.AuthorId))
                 return false;
-            
+
             _db.Tasks.Remove(dbTask);
             await _db.SaveChangesAsync();
             return true;
         }
 
-        private bool CheckIfAuthor(ClaimsPrincipal user, string authorId)
+        private ICollection<UserTask> LinkUsersToTask(IEnumerable<string>? assignedUsersId, MyTask myTask)
+        {
+            var userTasks = new List<UserTask>();
+
+            if (assignedUsersId != null)
+                foreach (var userId in assignedUsersId)
+                {
+                    userTasks.Add(new UserTask
+                    {
+                        Task = myTask,
+                        UserId = userId
+                    });
+                }
+
+            return userTasks;
+        }
+
+        private ICollection<UserTask> LinkUsersToTask(IEnumerable<string>? assignedUsersId, int taskId)
+        {
+            var userTasks = new List<UserTask>();
+
+            if (assignedUsersId != null)
+                foreach (var userId in assignedUsersId)
+                {
+                    userTasks.Add(new UserTask
+                    {
+                        TaskId = taskId,
+                        UserId = userId
+                    });
+                }
+
+            return userTasks;
+        }
+
+        private bool CheckIfAllowed(ClaimsPrincipal user, string authorId)
         {
             if (authorId != user.FindFirst(ClaimTypes.NameIdentifier)!.Value)
                 if (!user.FindAll(ClaimTypes.Role).Any(x => x.Value == "Admin"))

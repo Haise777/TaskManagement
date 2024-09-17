@@ -7,6 +7,7 @@ namespace TaskManagement.API.Data
         [Required]
         public string UserName { get; set; }
         [Required] //TODO Validate minimum length
+        [MinLength(8)]
         public string Password { get; set; }
     }
 }
