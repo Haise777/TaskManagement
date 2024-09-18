@@ -45,31 +45,34 @@ namespace TaskManagement.API.Controllers
             return Ok(tasks);
         }
 
-        [HttpPost("modifyTask/{taskId}")]
-        public async Task<IActionResult> ModifyTask([FromBody] TaskDto modifiedTask, [FromRoute] int taskId)
-        {
-            if (!ModelState.IsValid)
-                return BadRequest(ModelState);
-
-            var result = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId);
-            return Ok(result);
-        }
-
-        [HttpDelete("deleteTask/{taskId}")]
-        public async Task<IActionResult> DeleteTask([FromRoute] int taskId)
-        {
-            var result = await _taskService.DeleteTaskAsync(HttpContext.User, taskId);
-            return Ok(result);
-        }
-
         [HttpPost("createtask")]
         public async Task<IActionResult> CreateTask([FromBody] TaskDto newTask)
         {
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            await _taskService.CreateNewTaskAsync(HttpContext.User, newTask);
-            return Ok("Success");
+            var task = await _taskService.CreateNewTaskAsync(HttpContext.User, newTask);
+            return Ok(task);
+        }
+
+        [HttpPost("modifyTask/{taskId}")]
+        public async Task<IActionResult> ModifyTask([FromBody] TaskDto modifiedTask, [FromRoute] int taskId)
+        {
+            if (!ModelState.IsValid)
+                return BadRequest(ModelState);
+
+            var task = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId);
+            return Ok(task);
+        }
+
+        [HttpDelete("deleteTask/{taskId}")]
+        public async Task<IActionResult> DeleteTask([FromRoute] int taskId)
+        {
+            var result = await _taskService.DeleteTaskAsync(HttpContext.User, taskId);
+            if (result != null)
+                return new ObjectResult(result.Message) { StatusCode = result.StatusCode };
+
+            return Ok();
         }
 
 
@@ -82,8 +85,8 @@ namespace TaskManagement.API.Controllers
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var result = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId, admin: true);
-            return Ok(result);
+            var task = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId, admin: true);
+            return Ok(task);
         }
 
         [Authorize(Policy = "AdminOnly")]
@@ -91,7 +94,10 @@ namespace TaskManagement.API.Controllers
         public async Task<IActionResult> AdminDeleteTask([FromRoute] int taskId)
         {
             var result = await _taskService.DeleteTaskAsync(HttpContext.User, taskId, admin: true);
-            return Ok(result);
+            if (result != null)
+                return new ObjectResult(result.Message) { StatusCode = result.StatusCode };
+
+            return Ok();
         }
     }
 }

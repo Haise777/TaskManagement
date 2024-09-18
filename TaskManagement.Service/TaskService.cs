@@ -6,6 +6,7 @@ using TaskManagement.API.Contracts;
 using TaskManagement.API.Data;
 using TaskManagement.API.Data.Models;
 using TaskManagement.API.DataTransfer;
+using TaskManagement.API.Response;
 
 namespace TaskManagement.API.Services
 {
@@ -34,8 +35,7 @@ namespace TaskManagement.API.Services
             return await TranslateTasksAsync(authorTasks);
         }
 
-        //Should return based on the success of the operation
-        public async Task<bool> CreateNewTaskAsync(ClaimsPrincipal user, TaskDto newTask)
+        public async Task<ReadableTask> CreateNewTaskAsync(ClaimsPrincipal user, TaskDto newTask)
         {
             var userId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value;
 
@@ -48,22 +48,20 @@ namespace TaskManagement.API.Services
                 Created = DateTime.UtcNow,
             };
 
-
             task.UserTasks = LinkUsersToTask(newTask.AssignedUsers, task);
 
             //TODO implement a try catch error handling in the future
             await _repo.SaveDataAsync(task);
 
-            return true;
+            return (ReadableTask)await TranslateTasksAsync(new[] { task });
         }
 
-        //Should return based on the success of the operation
-        public async Task<bool> ModifyTaskAsync(ClaimsPrincipal user, TaskDto modifiedTask, int taskId, bool admin = false)
+        public async Task<ReadableTask?> ModifyTaskAsync(ClaimsPrincipal user, TaskDto modifiedTask, int taskId, bool admin = false)
         {
             var dbTask = await _repo.GetTaskAsync(taskId, IncludeUserTask: true);
 
             if (!CheckIfAuthor(user, dbTask!.AuthorId))
-                if (!admin) return false;
+                if (!admin) return null;
 
             dbTask.IsCompleted = modifiedTask.IsCompleted;
             dbTask.Title = modifiedTask.Title;
@@ -75,45 +73,26 @@ namespace TaskManagement.API.Services
                 dbTask.UserTasks.Add(filteredUserTask);
 
             await _repo.UpdateModelAsync(dbTask);
-            return true;
+            return (ReadableTask)await TranslateTasksAsync(new[] { dbTask });
         }
 
-        //Should return based on the success of the operation
-        public async Task<bool> DeleteTaskAsync(ClaimsPrincipal user, int taskId, bool admin = false)
+        public async Task<ErrorResponse?> DeleteTaskAsync(ClaimsPrincipal user, int taskId, bool admin = false)
         {
             var dbTask = await _repo.GetTaskAsync(taskId);
 
-            if (dbTask == null) return false;
+            if (dbTask == null) return new ErrorResponse() { StatusCode = 400, Message = "No Task was found with the specified ID"};
             if (!CheckIfAuthor(user, dbTask.AuthorId))
-                if (!admin) return false;
+                if (!admin) return new ErrorResponse() { StatusCode = 403, Message = "User is not allowed to delete Task" }; ;
 
             await _repo.RemoveTaskAsync(dbTask);
-            return true;
+            return null;
         }
 
         private async Task<IEnumerable<ReadableTask>> TranslateTasksAsync(IEnumerable<MyTask> tasks)
         {
             var translatedTasks = new List<ReadableTask>();
 
-            var userIds = new List<string>();
-
-            //var userIds = tasks
-            //    .SelectMany(t => t.UserTasks)
-            //    .Select(t => t.UserId)
-            //    .Distinct().ToList();
-
-            foreach (var task in tasks)
-            {
-                if (!userIds.Contains(task.AuthorId))
-                    userIds.Add(task.AuthorId);
-
-                foreach (var UserTask in task.UserTasks)
-                {
-                    if(!userIds.Contains(UserTask.UserId))
-                        userIds.Add(UserTask.UserId);
-                }
-            }
-
+            var userIds = FetchIndividualIDs(tasks);
             var userNames = await _repo.GetUsernamesById(userIds);
 
             foreach (var task in tasks)
@@ -135,6 +114,24 @@ namespace TaskManagement.API.Services
             }
 
             return translatedTasks;
+        }
+
+        private static IEnumerable<string> FetchIndividualIDs(IEnumerable<MyTask> tasks)
+        {
+            var usernames = new List<string>();
+
+            foreach (var task in tasks)
+            {
+                if (!usernames.Contains(task.AuthorId))
+                    usernames.Add(task.AuthorId);
+
+                foreach (var UserTask in task.UserTasks)
+                {
+                    if (!usernames.Contains(UserTask.UserId))
+                        usernames.Add(UserTask.UserId);
+                }
+            }
+            return usernames;
         }
 
         private ICollection<UserTask> LinkUsersToTask(IEnumerable<string>? assignedUsersId, MyTask myTask)

@@ -49,7 +49,7 @@ namespace TaskManagement.API.Data.Repositories
                 return await _db.Tasks.FirstOrDefaultAsync(x => x.Id == taskId);
         }
 
-        public async Task<Dictionary<string, string>> GetUsernamesById(List<string> userIds)
+        public async Task<Dictionary<string, string>> GetUsernamesById(IEnumerable<string> userIds)
         {
             return await _db.Users
                  .Where(x => userIds.Contains(x.Id))
