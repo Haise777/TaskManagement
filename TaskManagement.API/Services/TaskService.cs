@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using TaskManagement.API.Contracts;
 using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Data.Models;
 
@@ -9,10 +10,10 @@ namespace TaskManagement.API.Services
 {
     public class TaskService
     {
-        private readonly MyDbContext _db;
+        private readonly ITaskRepository _db;
         private readonly UserManager<User> _userManager;
 
-        public TaskService(UserManager<User> userManager, MyDbContext db)
+        public TaskService(UserManager<User> userManager, ITaskRepository db)
         {
             _userManager = userManager;
             _db = db;
@@ -20,16 +21,13 @@ namespace TaskManagement.API.Services
 
         public async Task<IEnumerable<ReadableTask>> GetAllAssignedTasksAsync(string userId)
         {
-            var userAssignedTasks = await _db.Tasks
-                .Where(t => t.UserTasks.Any(t => t.UserId == userId)).Include(inc => inc.UserTasks)
-                .ToListAsync();
+            var userAssignedTasks = await _db.GetAllAssignedTasksAsync(userId);
 
             return await TranslateTasksAsync(userAssignedTasks);
         }
         public async Task<IEnumerable<ReadableTask>> GetAllAuthorTasksAsync(string authorId)
         {
-            var authorTasks = await _db.Tasks
-                .Where(t => t.AuthorId == authorId).Include(inc => inc.UserTasks).ToListAsync();
+            var authorTasks = await _db.GetAllAuthorTasksAsync(authorId);
 
             return await TranslateTasksAsync(authorTasks);
         }
@@ -51,8 +49,7 @@ namespace TaskManagement.API.Services
             task.UserTasks = LinkUsersToTask(newTask.AssignedUsers, task);
 
             //TODO implement a try catch error handling in the future
-            _db.Tasks.Add(task);
-            await _db.SaveChangesAsync();
+            await _db.SaveDataAsync(task);
 
             return true;
         }
@@ -60,9 +57,8 @@ namespace TaskManagement.API.Services
         //Should return based on the success of the operation
         public async Task<bool> ModifyTaskAsync(ClaimsPrincipal user, TaskDto modifiedTask, int taskId, bool admin = false)
         {
-            var dbTask = await _db.Tasks
-                .Where(x => x.Id == taskId)
-                .Include(x => x.UserTasks).SingleAsync();
+            var dbTask = await _db.GetTaskAsync(taskId, IncludeUserTask: true);
+
 
             if (!CheckIfAuthor(user, dbTask.AuthorId))
                 if (!admin) return false;
@@ -74,20 +70,19 @@ namespace TaskManagement.API.Services
             foreach (var filteredUserTask in LinkUsersToTask(modifiedTask.AssignedUsers, taskId))
                 dbTask.UserTasks.Add(filteredUserTask);
 
-            await _db.SaveChangesAsync();
+            await _db.UpdateModelAsync(dbTask);
             return true;
         }
 
         //Should return based on the success of the operation
         public async Task<bool> DeleteTaskAsync(ClaimsPrincipal user, int taskId, bool admin = false)
         {
-            var dbTask = await _db.Tasks.FirstAsync(x => x.Id == taskId);
+            var dbTask = await _db.GetTaskAsync(taskId);
 
             if (!CheckIfAuthor(user, dbTask.AuthorId))
                 if (!admin) return false;
 
-            _db.Tasks.Remove(dbTask);
-            await _db.SaveChangesAsync();
+            await _db.RemoveTaskAsync(dbTask);
             return true;
         }
 
@@ -141,9 +136,7 @@ namespace TaskManagement.API.Services
                 .SelectMany(t => t.UserTasks)
                 .Select(t => t.UserId)
                 .Distinct().ToList();
-            var userNames = await _db.Users
-                .Where(x => userIds.Contains(x.Id))
-                .ToDictionaryAsync(x => x.Id, x => x.UserName);
+            var userNames = await _db.GetUsernamesById(userIds);
 
             foreach (var task in tasks)
             {

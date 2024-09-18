@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
+using TaskManagement.API.Contracts;
 using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Data.Models;
 
@@ -8,12 +9,12 @@ namespace TaskManagement.API.Services
     public class AccountService
     {
         private readonly UserManager<User> _userManager;
-        private readonly MyDbContext _db;
+        private readonly IUserRepository _repo;
 
-        public AccountService(UserManager<User> userManager, MyDbContext db)
+        public AccountService(UserManager<User> userManager, IUserRepository repo)
         {
             _userManager = userManager;
-            _db = db;
+            _repo = repo;
         }
 
         public async Task<IEnumerable<IdentityError>?> ChangePasswordAsync(ClaimsPrincipal user, PasswordChange passwords)
@@ -42,7 +43,8 @@ namespace TaskManagement.API.Services
 
         internal async Task<IEnumerable<IdentityError>?> AdminChangeUsernameAsync(string userId, Username newUsername)
         {
-            var iUser = await _db.Users.FindAsync(userId);
+            var iUser = await _repo.GetUserAsync(userId);
+
             if (iUser == null)
                 return new[] { new IdentityError() { Description = "Could not find a user with the specified ID" } };
 
@@ -72,7 +74,7 @@ namespace TaskManagement.API.Services
 
         internal async Task<IEnumerable<IdentityError>?> AdminDeleteUserAccountAsync(string userId)
         {
-            var iUser = await _db.Users.FindAsync(userId);
+            var iUser = await _repo.GetUserAsync(userId);
             if (iUser == null)
                 return new[] { new IdentityError() { Description = "Could not find a user with the specified ID" } };
 
