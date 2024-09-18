@@ -1,9 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TaskManagement.API.Data.DataTransfer;
-using TaskManagement.API.Data.Models;
 using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers
@@ -20,7 +18,7 @@ namespace TaskManagement.API.Controllers
             _taskService = taskService;
         }
 
-        [HttpGet("getassignedtasks")]
+        [HttpGet("getAssignedTasks")]
         public async Task<IActionResult> GetAssignedTasks()
         {
             var tasks = await _taskService.GetAllAssignedTasksAsync(
@@ -29,7 +27,7 @@ namespace TaskManagement.API.Controllers
             return Ok(tasks);
         }
 
-        [HttpGet("getauthortasks/{authorId:guid?}")]
+        [HttpGet("getAuthorTasks/{authorId:guid?}")]
         public async Task<IActionResult> GetAuthorTasks([FromRoute] string? authorId)
         {
             if (authorId == null)
@@ -40,14 +38,14 @@ namespace TaskManagement.API.Controllers
             return Ok(tasks);
         }
 
-        [HttpPost("modifytask/{taskId}")]
+        [HttpPost("modifyTask/{taskId}")]
         public async Task<IActionResult> ModifyTask([FromBody] TaskDto modifiedTask, [FromRoute] int taskId)
         {
             var result = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId);
             return Ok(result);
         }
 
-        [HttpDelete("deletetask/{taskId}")]
+        [HttpDelete("deleteTask/{taskId}")]
         public async Task<IActionResult> DeleteTask([FromRoute] int taskId)
         {
             var result = await _taskService.DeleteTaskAsync(HttpContext.User, taskId);
@@ -65,7 +63,7 @@ namespace TaskManagement.API.Controllers
         // Admin-section //
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpPost("admin/modifytask/{taskId}")]
+        [HttpPost("admin/modifyTask/{taskId}")]
         public async Task<IActionResult> AdminModifyTask([FromBody] TaskDto modifiedTask, [FromRoute] int taskId)
         {
             var result = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId, admin:true);
@@ -73,7 +71,7 @@ namespace TaskManagement.API.Controllers
         }
 
         [Authorize(Policy = "AdminOnly")]
-        [HttpDelete("admin/deletetask/{taskId}")]
+        [HttpDelete("admin/deleteTask/{taskId}")]
         public async Task<IActionResult> AdminDeleteTask([FromRoute] int taskId)
         {
             var result = await _taskService.DeleteTaskAsync(HttpContext.User, taskId, admin:true);

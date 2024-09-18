@@ -10,24 +10,24 @@ namespace TaskManagement.API.Services
 {
     public class TaskService
     {
-        private readonly ITaskRepository _db;
+        private readonly ITaskRepository _repo;
         private readonly UserManager<User> _userManager;
 
-        public TaskService(UserManager<User> userManager, ITaskRepository db)
+        public TaskService(UserManager<User> userManager, ITaskRepository repo)
         {
             _userManager = userManager;
-            _db = db;
+            _repo = repo;
         }
 
         public async Task<IEnumerable<ReadableTask>> GetAllAssignedTasksAsync(string userId)
         {
-            var userAssignedTasks = await _db.GetAllAssignedTasksAsync(userId);
+            var userAssignedTasks = await _repo.GetAllAssignedTasksAsync(userId);
 
             return await TranslateTasksAsync(userAssignedTasks);
         }
         public async Task<IEnumerable<ReadableTask>> GetAllAuthorTasksAsync(string authorId)
         {
-            var authorTasks = await _db.GetAllAuthorTasksAsync(authorId);
+            var authorTasks = await _repo.GetAllAuthorTasksAsync(authorId);
 
             return await TranslateTasksAsync(authorTasks);
         }
@@ -49,7 +49,7 @@ namespace TaskManagement.API.Services
             task.UserTasks = LinkUsersToTask(newTask.AssignedUsers, task);
 
             //TODO implement a try catch error handling in the future
-            await _db.SaveDataAsync(task);
+            await _repo.SaveDataAsync(task);
 
             return true;
         }
@@ -57,8 +57,7 @@ namespace TaskManagement.API.Services
         //Should return based on the success of the operation
         public async Task<bool> ModifyTaskAsync(ClaimsPrincipal user, TaskDto modifiedTask, int taskId, bool admin = false)
         {
-            var dbTask = await _db.GetTaskAsync(taskId, IncludeUserTask: true);
-
+            var dbTask = await _repo.GetTaskAsync(taskId, IncludeUserTask: true);
 
             if (!CheckIfAuthor(user, dbTask.AuthorId))
                 if (!admin) return false;
@@ -70,20 +69,49 @@ namespace TaskManagement.API.Services
             foreach (var filteredUserTask in LinkUsersToTask(modifiedTask.AssignedUsers, taskId))
                 dbTask.UserTasks.Add(filteredUserTask);
 
-            await _db.UpdateModelAsync(dbTask);
+            await _repo.UpdateModelAsync(dbTask);
             return true;
         }
 
         //Should return based on the success of the operation
         public async Task<bool> DeleteTaskAsync(ClaimsPrincipal user, int taskId, bool admin = false)
         {
-            var dbTask = await _db.GetTaskAsync(taskId);
+            var dbTask = await _repo.GetTaskAsync(taskId);
 
             if (!CheckIfAuthor(user, dbTask.AuthorId))
                 if (!admin) return false;
 
-            await _db.RemoveTaskAsync(dbTask);
+            await _repo.RemoveTaskAsync(dbTask);
             return true;
+        }
+
+        private async Task<IEnumerable<ReadableTask>> TranslateTasksAsync(IEnumerable<MyTask> tasks)
+        {
+            var translatedTasks = new List<ReadableTask>();
+
+            var userIds = tasks
+                .SelectMany(t => t.UserTasks)
+                .Select(t => t.UserId)
+                .Distinct().ToList();
+            var userNames = await _repo.GetUsernamesById(userIds);
+
+            foreach (var task in tasks)
+            {
+                translatedTasks.Add(new ReadableTask
+                {
+                    Id = task.Id,
+                    Author = userNames.Single(x => x.Key == task.AuthorId),
+                    Title = task.Title,
+                    Description = task.Description,
+                    Created = task.Created,
+                    LastUpdated = task.LastUpdated,
+                    AssignedUsers = userNames
+                    .Where(un => task.UserTasks.Any(ut => ut.UserId == un.Key))
+                    .ToDictionary(x => x.Key, x => x.Value)
+                });
+            }
+
+            return translatedTasks;
         }
 
         private ICollection<UserTask> LinkUsersToTask(IEnumerable<string>? assignedUsersId, MyTask myTask)
@@ -126,35 +154,6 @@ namespace TaskManagement.API.Services
                 return false;
 
             return true;
-        }
-
-        private async Task<IEnumerable<ReadableTask>> TranslateTasksAsync(IEnumerable<MyTask> tasks)
-        {
-            var translatedTasks = new List<ReadableTask>();
-
-            var userIds = tasks
-                .SelectMany(t => t.UserTasks)
-                .Select(t => t.UserId)
-                .Distinct().ToList();
-            var userNames = await _db.GetUsernamesById(userIds);
-
-            foreach (var task in tasks)
-            {
-                translatedTasks.Add(new ReadableTask
-                {
-                    Id = task.Id,
-                    Author = userNames.Single(x => x.Key == task.AuthorId),
-                    Title = task.Title,
-                    Description = task.Description,
-                    Created = task.Created,
-                    LastUpdated = task.LastUpdated,
-                    AssignedUsers = userNames
-                    .Where(un => task.UserTasks.Any(ut => ut.UserId == un.Key))
-                    .ToDictionary(x => x.Key, x => x.Value)
-                });
-            }
-
-            return translatedTasks;
         }
     }
 }
