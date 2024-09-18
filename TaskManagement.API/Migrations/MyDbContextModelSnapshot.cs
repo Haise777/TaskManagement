@@ -6,8 +6,6 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using TaskManagement.API.Data;
 
-
-
 #nullable disable
 
 namespace TaskManagement.API.Migrations
@@ -54,14 +52,14 @@ namespace TaskManagement.API.Migrations
                         new
                         {
                             Id = "1",
-                            ConcurrencyStamp = "9e1a85c9-fb9e-42c7-a6fb-c8159247fd08",
+                            ConcurrencyStamp = "dc79ce6b-20e1-436b-a952-0687a7dbb085",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
                             Id = "2",
-                            ConcurrencyStamp = "d9d949f5-ce59-4348-999a-38e3ca9772e2",
+                            ConcurrencyStamp = "81075fcf-1db1-4b30-9f31-7b6566bf05eb",
                             Name = "User",
                             NormalizedName = "USER"
                         });
@@ -156,7 +154,7 @@ namespace TaskManagement.API.Migrations
                     b.HasData(
                         new
                         {
-                            UserId = "23768af7-0750-4b33-a7fc-0f19ac825b68",
+                            UserId = "20b2cc63-08c8-48e1-8de4-fc73b782c4e3",
                             RoleId = "1"
                         });
                 });
@@ -180,7 +178,7 @@ namespace TaskManagement.API.Migrations
                     b.ToTable("AspNetUserTokens", (string)null);
                 });
 
-            modelBuilder.Entity("TaskManagement.API.Models.MyTask", b =>
+            modelBuilder.Entity("TaskManagement.API.Data.Models.MyTask", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -199,8 +197,14 @@ namespace TaskManagement.API.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<bool>("IsCompleted")
+                        .HasColumnType("bit");
+
                     b.Property<DateTime?>("LastUpdated")
                         .HasColumnType("datetime2");
+
+                    b.Property<int>("Priority")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -211,7 +215,7 @@ namespace TaskManagement.API.Migrations
                     b.ToTable("Tasks");
                 });
 
-            modelBuilder.Entity("TaskManagement.API.Models.User", b =>
+            modelBuilder.Entity("TaskManagement.API.Data.Models.User", b =>
                 {
                     b.Property<string>("Id")
                         .HasColumnType("nvarchar(450)");
@@ -278,23 +282,23 @@ namespace TaskManagement.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "23768af7-0750-4b33-a7fc-0f19ac825b68",
+                            Id = "20b2cc63-08c8-48e1-8de4-fc73b782c4e3",
                             AccessFailedCount = 0,
-                            ConcurrencyStamp = "0e3bbdab-552c-4b15-a005-fbca0cd9666e",
+                            ConcurrencyStamp = "08c3c92a-260e-4d9c-802e-6571160dc2ce",
                             Email = "admin@admin.com",
                             EmailConfirmed = true,
                             LockoutEnabled = false,
                             NormalizedEmail = "ADMIN@ADMIN.COM",
                             NormalizedUserName = "ADMIN",
-                            PasswordHash = "AQAAAAEAACcQAAAAENlJKdsikK0cI7FzVtpybvDvJPq1DoSxFxzMBPfL98Vat8r3BTGCoOZtLEzTR2oWSA==",
+                            PasswordHash = "AQAAAAEAACcQAAAAEFH9zQ027ionycdHexpfQ/uWjwLLh2tr8qvLbm/LoptcTpC1Ouzmxmdg8su/Z+ZO9A==",
                             PhoneNumberConfirmed = false,
-                            SecurityStamp = "c7027851-cb1d-4196-aaa0-cf9c38610ed8",
+                            SecurityStamp = "93e0680b-2a32-4517-8d19-fef58f1025c2",
                             TwoFactorEnabled = false,
                             UserName = "admin"
                         });
                 });
 
-            modelBuilder.Entity("TaskManagement.API.Models.UserTask", b =>
+            modelBuilder.Entity("TaskManagement.API.Data.Models.UserTask", b =>
                 {
                     b.Property<string>("UserId")
                         .HasColumnType("nvarchar(450)");
@@ -320,7 +324,7 @@ namespace TaskManagement.API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
                 {
-                    b.HasOne("TaskManagement.API.Models.User", null)
+                    b.HasOne("TaskManagement.API.Data.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -329,7 +333,7 @@ namespace TaskManagement.API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
                 {
-                    b.HasOne("TaskManagement.API.Models.User", null)
+                    b.HasOne("TaskManagement.API.Data.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -344,7 +348,7 @@ namespace TaskManagement.API.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagement.API.Models.User", null)
+                    b.HasOne("TaskManagement.API.Data.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -353,22 +357,22 @@ namespace TaskManagement.API.Migrations
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
                 {
-                    b.HasOne("TaskManagement.API.Models.User", null)
+                    b.HasOne("TaskManagement.API.Data.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
-            modelBuilder.Entity("TaskManagement.API.Models.UserTask", b =>
+            modelBuilder.Entity("TaskManagement.API.Data.Models.UserTask", b =>
                 {
-                    b.HasOne("TaskManagement.API.Models.MyTask", "Task")
+                    b.HasOne("TaskManagement.API.Data.Models.MyTask", "Task")
                         .WithMany("UserTasks")
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("TaskManagement.API.Models.User", "User")
+                    b.HasOne("TaskManagement.API.Data.Models.User", "User")
                         .WithMany("UserTasks")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -379,12 +383,12 @@ namespace TaskManagement.API.Migrations
                     b.Navigation("User");
                 });
 
-            modelBuilder.Entity("TaskManagement.API.Models.MyTask", b =>
+            modelBuilder.Entity("TaskManagement.API.Data.Models.MyTask", b =>
                 {
                     b.Navigation("UserTasks");
                 });
 
-            modelBuilder.Entity("TaskManagement.API.Models.User", b =>
+            modelBuilder.Entity("TaskManagement.API.Data.Models.User", b =>
                 {
                     b.Navigation("UserTasks");
                 });

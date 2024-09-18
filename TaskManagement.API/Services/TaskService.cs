@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using TaskManagement.API.Contracts;
+using TaskManagement.API.Data;
 using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Data.Models;
 
@@ -19,15 +20,16 @@ namespace TaskManagement.API.Services
             _repo = repo;
         }
 
-        public async Task<IEnumerable<ReadableTask>> GetAllAssignedTasksAsync(string userId)
+        public async Task<IEnumerable<ReadableTask>> GetAllAssignedTasksAsync(ClaimsPrincipal user, int? taskPriority)
         {
-            var userAssignedTasks = await _repo.GetAllAssignedTasksAsync(userId);
+            var userId = user.FindFirst(ClaimTypes.NameIdentifier)!.Value;
+            var userAssignedTasks = await _repo.GetAllAssignedTasksAsync(userId, taskPriority ?? -1);
 
             return await TranslateTasksAsync(userAssignedTasks);
         }
-        public async Task<IEnumerable<ReadableTask>> GetAllAuthorTasksAsync(string authorId)
+        public async Task<IEnumerable<ReadableTask>> GetAllAuthorTasksAsync(string authorId, int? taskPriority)
         {
-            var authorTasks = await _repo.GetAllAuthorTasksAsync(authorId);
+            var authorTasks = await _repo.GetAllAuthorTasksAsync(authorId, taskPriority ?? -1);
 
             return await TranslateTasksAsync(authorTasks);
         }
@@ -39,6 +41,7 @@ namespace TaskManagement.API.Services
 
             var task = new MyTask()
             {
+                Priority = newTask.Priority,
                 AuthorId = userId,
                 Title = newTask.Title,
                 Description = newTask.Description,
@@ -59,11 +62,13 @@ namespace TaskManagement.API.Services
         {
             var dbTask = await _repo.GetTaskAsync(taskId, IncludeUserTask: true);
 
-            if (!CheckIfAuthor(user, dbTask.AuthorId))
+            if (!CheckIfAuthor(user, dbTask!.AuthorId))
                 if (!admin) return false;
 
+            dbTask.IsCompleted = modifiedTask.IsCompleted;
             dbTask.Title = modifiedTask.Title;
             dbTask.Description = modifiedTask.Description;
+            dbTask.Priority = modifiedTask.Priority;
             dbTask.LastUpdated = DateTime.UtcNow;
             dbTask.UserTasks.Clear();
             foreach (var filteredUserTask in LinkUsersToTask(modifiedTask.AssignedUsers, taskId))
@@ -78,6 +83,7 @@ namespace TaskManagement.API.Services
         {
             var dbTask = await _repo.GetTaskAsync(taskId);
 
+            if (dbTask == null) return false;
             if (!CheckIfAuthor(user, dbTask.AuthorId))
                 if (!admin) return false;
 
@@ -89,10 +95,25 @@ namespace TaskManagement.API.Services
         {
             var translatedTasks = new List<ReadableTask>();
 
-            var userIds = tasks
-                .SelectMany(t => t.UserTasks)
-                .Select(t => t.UserId)
-                .Distinct().ToList();
+            var userIds = new List<string>();
+
+            //var userIds = tasks
+            //    .SelectMany(t => t.UserTasks)
+            //    .Select(t => t.UserId)
+            //    .Distinct().ToList();
+
+            foreach (var task in tasks)
+            {
+                if (!userIds.Contains(task.AuthorId))
+                    userIds.Add(task.AuthorId);
+
+                foreach (var UserTask in task.UserTasks)
+                {
+                    if(!userIds.Contains(UserTask.UserId))
+                        userIds.Add(UserTask.UserId);
+                }
+            }
+
             var userNames = await _repo.GetUsernamesById(userIds);
 
             foreach (var task in tasks)
@@ -100,11 +121,13 @@ namespace TaskManagement.API.Services
                 translatedTasks.Add(new ReadableTask
                 {
                     Id = task.Id,
+                    Priority = task.Priority,
                     Author = userNames.Single(x => x.Key == task.AuthorId),
                     Title = task.Title,
                     Description = task.Description,
                     Created = task.Created,
                     LastUpdated = task.LastUpdated,
+                    IsCompleted = task.IsCompleted,
                     AssignedUsers = userNames
                     .Where(un => task.UserTasks.Any(ut => ut.UserId == un.Key))
                     .ToDictionary(x => x.Key, x => x.Value)

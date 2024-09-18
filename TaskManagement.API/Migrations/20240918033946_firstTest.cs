@@ -5,7 +5,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace TaskManagement.API.Migrations
 {
-    public partial class setup : Migration
+    public partial class firstTest : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -46,6 +46,25 @@ namespace TaskManagement.API.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_AspNetUsers", x => x.Id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Tasks",
+                columns: table => new
+                {
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Priority = table.Column<int>(type: "int", nullable: false),
+                    IsCompleted = table.Column<bool>(type: "bit", nullable: false),
+                    AuthorId = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Description = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Created = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Tasks", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -154,25 +173,49 @@ namespace TaskManagement.API.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
-            migrationBuilder.InsertData(
-                table: "AspNetRoles",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "1", "39557d20-4cc9-453d-a711-a76d06154ff7", "Admin", "ADMIN" });
+            migrationBuilder.CreateTable(
+                name: "UserTask",
+                columns: table => new
+                {
+                    UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    TaskId = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_UserTask", x => new { x.UserId, x.TaskId });
+                    table.ForeignKey(
+                        name: "FK_UserTask_AspNetUsers_UserId",
+                        column: x => x.UserId,
+                        principalTable: "AspNetUsers",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "FK_UserTask_Tasks_TaskId",
+                        column: x => x.TaskId,
+                        principalTable: "Tasks",
+                        principalColumn: "Id",
+                        onDelete: ReferentialAction.Cascade);
+                });
 
             migrationBuilder.InsertData(
                 table: "AspNetRoles",
                 columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[] { "2", "e2a1eb7d-f05c-41ce-b0da-6b3ac0e7aa8e", "User", "USER" });
+                values: new object[] { "1", "dc79ce6b-20e1-436b-a952-0687a7dbb085", "Admin", "ADMIN" });
+
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[] { "2", "81075fcf-1db1-4b30-9f31-7b6566bf05eb", "User", "USER" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUsers",
                 columns: new[] { "Id", "AccessFailedCount", "ConcurrencyStamp", "Email", "EmailConfirmed", "LockoutEnabled", "LockoutEnd", "NormalizedEmail", "NormalizedUserName", "PasswordHash", "PhoneNumber", "PhoneNumberConfirmed", "SecurityStamp", "TwoFactorEnabled", "UserName" },
-                values: new object[] { "10691a31-2518-4b7d-b6b4-86b15f9e0987", 0, "d14bde44-bab7-4a04-a0b1-55c36277d69f", "admin@admin.com", true, false, null, "ADMIN@ADMIN.COM", "ADMIN", "AQAAAAEAACcQAAAAEL7sStrCLaxdLC0HLJgGtK/LMFk79jlAhBbUn5qSTDqHcmwYeOARubg+BUZ+BA6MAw==", null, false, "1b814409-0491-4ce6-9250-7db50ce2f2e9", false, "admin" });
+                values: new object[] { "20b2cc63-08c8-48e1-8de4-fc73b782c4e3", 0, "08c3c92a-260e-4d9c-802e-6571160dc2ce", "admin@admin.com", true, false, null, "ADMIN@ADMIN.COM", "ADMIN", "AQAAAAEAACcQAAAAEFH9zQ027ionycdHexpfQ/uWjwLLh2tr8qvLbm/LoptcTpC1Ouzmxmdg8su/Z+ZO9A==", null, false, "93e0680b-2a32-4517-8d19-fef58f1025c2", false, "admin" });
 
             migrationBuilder.InsertData(
                 table: "AspNetUserRoles",
                 columns: new[] { "RoleId", "UserId" },
-                values: new object[] { "1", "10691a31-2518-4b7d-b6b4-86b15f9e0987" });
+                values: new object[] { "1", "20b2cc63-08c8-48e1-8de4-fc73b782c4e3" });
 
             migrationBuilder.CreateIndex(
                 name: "IX_AspNetRoleClaims_RoleId",
@@ -212,6 +255,11 @@ namespace TaskManagement.API.Migrations
                 column: "NormalizedUserName",
                 unique: true,
                 filter: "[NormalizedUserName] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_UserTask_TaskId",
+                table: "UserTask",
+                column: "TaskId");
         }
 
         protected override void Down(MigrationBuilder migrationBuilder)
@@ -232,10 +280,16 @@ namespace TaskManagement.API.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
+                name: "UserTask");
+
+            migrationBuilder.DropTable(
                 name: "AspNetRoles");
 
             migrationBuilder.DropTable(
                 name: "AspNetUsers");
+
+            migrationBuilder.DropTable(
+                name: "Tasks");
         }
     }
 }

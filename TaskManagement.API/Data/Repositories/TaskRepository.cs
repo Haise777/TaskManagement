@@ -13,29 +13,40 @@ namespace TaskManagement.API.Data.Repositories
             _db = db;
         }
 
-        public async Task<IEnumerable<MyTask>> GetAllAssignedTasksAsync(string userId)
+        public async Task<IEnumerable<MyTask>> GetAllAssignedTasksAsync(string userId, int priority = -1)
         {
-            return await _db.Tasks
-                .Where(t => t.UserTasks.Any(t => t.UserId == userId)).Include(inc => inc.UserTasks)
-                .ToListAsync();
+            if (priority < 0)
+                return await _db.Tasks
+                    .Where(t => t.UserTasks.Any(t => t.UserId == userId)).Include(inc => inc.UserTasks)
+                    .ToListAsync();
+            else
+                return await _db.Tasks
+                    .Where(t => ((int)t.Priority) == priority)
+                    .Where(t => t.UserTasks.Any(t => t.UserId == userId)).Include(inc => inc.UserTasks)
+                    .ToListAsync();
         }
 
-        public async Task<IEnumerable<MyTask>> GetAllAuthorTasksAsync(string authorId)
+        public async Task<IEnumerable<MyTask>> GetAllAuthorTasksAsync(string authorId, int priority = -1)
         {
-            return await _db.Tasks
-                .Where(t => t.AuthorId == authorId).Include(inc => inc.UserTasks).ToListAsync();
+            if (priority < 0)
+                return await _db.Tasks
+                    .Where(t => t.AuthorId == authorId).Include(inc => inc.UserTasks).ToListAsync();
+            else
+                return await _db.Tasks
+                    .Where(t => ((int)t.Priority) == priority)
+                    .Where(t => t.AuthorId == authorId).Include(inc => inc.UserTasks).ToListAsync();
         }
 
-        public async Task<MyTask> GetTaskAsync(int taskId, bool IncludeUserTask = false)
+        public async Task<MyTask?> GetTaskAsync(int taskId, bool IncludeUserTask = false)
         {
             if (IncludeUserTask)
             {
                 return await _db.Tasks
                     .Where(x => x.Id == taskId)
-                    .Include(x => x.UserTasks).SingleAsync();
+                    .Include(x => x.UserTasks).SingleOrDefaultAsync();
             }
             else
-                return await _db.Tasks.FirstAsync(x => x.Id == taskId);
+                return await _db.Tasks.FirstOrDefaultAsync(x => x.Id == taskId);
         }
 
         public async Task<Dictionary<string, string>> GetUsernamesById(List<string> userIds)

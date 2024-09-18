@@ -6,6 +6,8 @@ namespace TaskManagement.API.Data.Models
     {
         [Key]
         public int Id { get; set; }
+        public TaskPriority Priority { get; set; }
+        public bool IsCompleted { get; set; }
         public string AuthorId { get; set; }
         public string Title { get; set; }
         public string Description { get; set; }

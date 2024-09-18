@@ -6,7 +6,8 @@ namespace TaskManagement.API.Data.DataTransfer
     {
         [Required]
         public string UserName { get; set; }
-        [Required] //TODO Validate minimum length
+
+        [Required] 
         [MinLength(8)]
         public string Password { get; set; }
     }
