@@ -41,7 +41,7 @@ namespace TaskManagement.API.Controllers
 
             var user = await _authService.ValidateUserLoginAsync(userLogin);
             if (user == null)
-                return BadRequest("Invalid credentials Placeholder Error");
+                return BadRequest("Invalid credentials");
 
             var token = await _authService.GenerateJWTTokenAsync((User)user);
             return Ok(token);
