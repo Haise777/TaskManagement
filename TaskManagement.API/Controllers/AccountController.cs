@@ -37,5 +37,40 @@ namespace TaskManagement.API.Controllers
 
             return Ok("Username changed");
         }
+
+        [HttpDelete("deleteAccount")]
+        public async Task<IActionResult> DeleteAccount([FromBody] UserPassword userPassword)
+        {
+            var result = await _accountService.DeleteUserAccountAsync(HttpContext.User, userPassword.Password);
+            if (result is not null)
+                return BadRequest(result);
+
+            return Ok("Username changed");
+        }
+
+
+        // Admin-section //
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("admin/changeUsername/{userId:guid}")]
+        public async Task<IActionResult> AdminChangeUsername([FromRoute] string userId, [FromBody] Username newUsername)
+        {
+            var result = await _accountService.AdminChangeUsernameAsync(userId, newUsername);
+            if (result is not null)
+                return BadRequest(result);
+
+            return Ok("Username changed");
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpDelete("admin/deleteAccount/{userId:guid}")]
+        public async Task<IActionResult> AdminDeleteAccount([FromRoute] string userId)
+        {
+            var result = await _accountService.AdminDeleteUserAccountAsync(userId);
+            if (result is not null)
+                return BadRequest(result);
+
+            return Ok("Username changed");
+        }
     }
 }

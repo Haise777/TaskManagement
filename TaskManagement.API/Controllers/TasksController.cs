@@ -60,5 +60,24 @@ namespace TaskManagement.API.Controllers
             await _taskService.CreateNewTaskAsync(HttpContext.User, newTask);
             return Ok("Success");
         }
+
+
+        // Admin-section //
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("admin/modifytask/{taskId}")]
+        public async Task<IActionResult> AdminModifyTask([FromBody] TaskDto modifiedTask, [FromRoute] int taskId)
+        {
+            var result = await _taskService.ModifyTaskAsync(HttpContext.User, modifiedTask, taskId, admin:true);
+            return Ok(result);
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpDelete("admin/deletetask/{taskId}")]
+        public async Task<IActionResult> AdminDeleteTask([FromRoute] int taskId)
+        {
+            var result = await _taskService.DeleteTaskAsync(HttpContext.User, taskId, admin:true);
+            return Ok(result);
+        }
     }
 }

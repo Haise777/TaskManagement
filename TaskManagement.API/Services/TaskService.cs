@@ -58,14 +58,14 @@ namespace TaskManagement.API.Services
         }
 
         //Should return based on the success of the operation
-        public async Task<bool> ModifyTaskAsync(ClaimsPrincipal user, TaskDto modifiedTask, int taskId)
+        public async Task<bool> ModifyTaskAsync(ClaimsPrincipal user, TaskDto modifiedTask, int taskId, bool admin = false)
         {
             var dbTask = await _db.Tasks
                 .Where(x => x.Id == taskId)
                 .Include(x => x.UserTasks).SingleAsync();
 
-            if (!CheckIfAllowed(user, dbTask.AuthorId))
-                return false;
+            if (!CheckIfAuthor(user, dbTask.AuthorId))
+                if (!admin) return false;
 
             dbTask.Title = modifiedTask.Title;
             dbTask.Description = modifiedTask.Description;
@@ -79,12 +79,12 @@ namespace TaskManagement.API.Services
         }
 
         //Should return based on the success of the operation
-        public async Task<bool> DeleteTaskAsync(ClaimsPrincipal user, int taskId)
+        public async Task<bool> DeleteTaskAsync(ClaimsPrincipal user, int taskId, bool admin = false)
         {
             var dbTask = await _db.Tasks.FirstAsync(x => x.Id == taskId);
 
-            if (!CheckIfAllowed(user, dbTask.AuthorId))
-                return false;
+            if (!CheckIfAuthor(user, dbTask.AuthorId))
+                if (!admin) return false;
 
             _db.Tasks.Remove(dbTask);
             await _db.SaveChangesAsync();
@@ -125,11 +125,10 @@ namespace TaskManagement.API.Services
             return userTasks;
         }
 
-        private bool CheckIfAllowed(ClaimsPrincipal user, string authorId)
+        private bool CheckIfAuthor(ClaimsPrincipal user, string authorId)
         {
             if (authorId != user.FindFirst(ClaimTypes.NameIdentifier)!.Value)
-                if (!user.FindAll(ClaimTypes.Role).Any(x => x.Value == "Admin"))
-                    return false;
+                return false;
 
             return true;
         }
