@@ -1,4 +1,6 @@
-﻿namespace TaskManagement.API.Data.DataTransfer
+﻿using TaskManagement.API.Data.Enums;
+
+namespace TaskManagement.API.DataTransfer
 {
     public class ReadableTask
     {

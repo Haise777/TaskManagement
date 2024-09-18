@@ -2,7 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using TaskManagement.API.Data;
-using TaskManagement.API.Data.DataTransfer;
+using TaskManagement.API.DataTransfer;
 using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers

@@ -7,6 +7,7 @@ using TaskManagement.API.Contracts;
 using TaskManagement.API.Data;
 using TaskManagement.API.Data.Models;
 using TaskManagement.API.Data.Repositories;
+using TaskManagement.API.Filters;
 using TaskManagement.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,14 +15,17 @@ var config = builder.Configuration;
 
 // Add services to the container.
 
-builder.Services.AddControllers();
+builder.Services.AddControllers(o =>
+{
+    o.Filters.Add(typeof(ExceptionFilter));
+});
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddScoped<ITaskRepository, TaskRepository>();
+builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<AccountService>();
 builder.Services.AddScoped<TaskService>();
-builder.Services.AddScoped<ITaskRepository, TaskRepository>();
-builder.Services.AddScoped<IUserRepository, UserRepository>();
 
 // Identity configuration
 builder.Services.AddIdentity<User, IdentityRole>(o =>
@@ -74,12 +78,12 @@ builder.Services.AddDbContext<MyDbContext>(o =>
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-//if (app.Environment.IsDevelopment())
-//{
-//    app.UseSwagger();
-//    app.UseSwaggerUI();
-//}
+//Configure the HTTP request pipeline.
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+app.UseSwaggerUI();
+}
 
 app.UseAuthentication();
 app.UseAuthorization();

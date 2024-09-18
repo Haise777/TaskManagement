@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Identity;
 using System.Security.Claims;
 using TaskManagement.API.Contracts;
-using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Data.Models;
+using TaskManagement.API.DataTransfer;
 
 namespace TaskManagement.API.Services
 {
@@ -30,7 +30,7 @@ namespace TaskManagement.API.Services
             return null;
         }
 
-        internal async Task<IEnumerable<IdentityError>?> ChangeUsernameAsync(ClaimsPrincipal user, Username newUsername)
+        public async Task<IEnumerable<IdentityError>?> ChangeUsernameAsync(ClaimsPrincipal user, Username newUsername)
         {
             var iUser = await _userManager.GetUserAsync(user);
             var result = await _userManager.SetUserNameAsync(iUser, newUsername.NewUsername);
@@ -41,7 +41,7 @@ namespace TaskManagement.API.Services
             return null;
         }
 
-        internal async Task<IEnumerable<IdentityError>?> AdminChangeUsernameAsync(string userId, Username newUsername)
+        public async Task<IEnumerable<IdentityError>?> AdminChangeUsernameAsync(string userId, Username newUsername)
         {
             var iUser = await _repo.GetUserAsync(userId);
 
@@ -55,7 +55,7 @@ namespace TaskManagement.API.Services
             return null;
         }
 
-        internal async Task<IEnumerable<IdentityError>?> DeleteUserAccountAsync(ClaimsPrincipal user, string userPassword)
+        public async Task<IEnumerable<IdentityError>?> DeleteUserAccountAsync(ClaimsPrincipal user, string userPassword)
         {
             var iUser = await _userManager.GetUserAsync(user);
 
@@ -72,7 +72,7 @@ namespace TaskManagement.API.Services
             return null;
         }
 
-        internal async Task<IEnumerable<IdentityError>?> AdminDeleteUserAccountAsync(string userId)
+        public async Task<IEnumerable<IdentityError>?> AdminDeleteUserAccountAsync(string userId)
         {
             var iUser = await _repo.GetUserAsync(userId);
             if (iUser == null)

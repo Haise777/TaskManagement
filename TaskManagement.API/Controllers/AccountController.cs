@@ -1,6 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using TaskManagement.API.Data.DataTransfer;
+using TaskManagement.API.DataTransfer;
 using TaskManagement.API.Services;
 
 namespace TaskManagement.API.Controllers

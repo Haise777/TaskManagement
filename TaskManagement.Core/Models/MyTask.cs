@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TaskManagement.API.Data.Enums;
 
 namespace TaskManagement.API.Data.Models
 {

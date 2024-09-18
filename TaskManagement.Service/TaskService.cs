@@ -4,8 +4,8 @@ using System.Security.Claims;
 using System.Threading.Tasks;
 using TaskManagement.API.Contracts;
 using TaskManagement.API.Data;
-using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Data.Models;
+using TaskManagement.API.DataTransfer;
 
 namespace TaskManagement.API.Services
 {

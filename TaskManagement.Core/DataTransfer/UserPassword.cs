@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace TaskManagement.API.Data.DataTransfer
+namespace TaskManagement.API.DataTransfer
 {
     public class UserPassword
     {

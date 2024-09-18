@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using TaskManagement.API.Data.Enums;
 
-namespace TaskManagement.API.Data.DataTransfer
+namespace TaskManagement.API.DataTransfer
 {
     public class TaskDto
     {

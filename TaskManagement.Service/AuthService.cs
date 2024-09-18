@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
-using TaskManagement.API.Data.DataTransfer;
 using TaskManagement.API.Data.Models;
+using TaskManagement.API.DataTransfer;
 
 namespace TaskManagement.API.Services
 {

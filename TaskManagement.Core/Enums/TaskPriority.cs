@@ -1,4 +1,4 @@
-﻿namespace TaskManagement.API.Data
+﻿namespace TaskManagement.API.Data.Enums
 {
     public enum TaskPriority
     {
