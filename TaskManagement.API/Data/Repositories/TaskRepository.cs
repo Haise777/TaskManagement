@@ -1,7 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using TaskManagement.API.Contracts;
 using TaskManagement.API.Data.Models;
 
-namespace TaskManagement.API.Contracts
+namespace TaskManagement.API.Data.Repositories
 {
     public class TaskRepository : ITaskRepository
     {
@@ -37,7 +38,7 @@ namespace TaskManagement.API.Contracts
                 return await _db.Tasks.FirstAsync(x => x.Id == taskId);
         }
 
-        public async Task<Dictionary<string,string>> GetUsernamesById(List<string> userIds)
+        public async Task<Dictionary<string, string>> GetUsernamesById(List<string> userIds)
         {
             return await _db.Users
                  .Where(x => userIds.Contains(x.Id))

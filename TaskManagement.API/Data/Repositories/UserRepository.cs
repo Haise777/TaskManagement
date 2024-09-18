@@ -1,6 +1,7 @@
-﻿using TaskManagement.API.Data.Models;
+﻿using TaskManagement.API.Contracts;
+using TaskManagement.API.Data.Models;
 
-namespace TaskManagement.API.Contracts
+namespace TaskManagement.API.Data.Repositories
 {
     public class UserRepository : IUserRepository
     {

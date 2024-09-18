@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using System.Text;
 using TaskManagement.API.Contracts;
+using TaskManagement.API.Data;
 using TaskManagement.API.Data.Models;
+using TaskManagement.API.Data.Repositories;
 using TaskManagement.API.Services;
 
 var builder = WebApplication.CreateBuilder(args);
