@@ -68,13 +68,12 @@ $ dotnet build
 <h4>4. Insert you Db Connection String</h4>  
 
 ```bash
-$ cd WebAPI/TaskManagement.API/bin/Debug/net6.0/
+$ cd TaskManagement.API/bin/Debug/net6.0/
 # Edit the 'appsettings.Development.json' file and place your Connection String in the "TestDb" value.
 ```
 <h4>5. Run the API</h4>  
 
 ```bash
-$ cd WebAPI/TaskManagement.API/bin/Debug/net6.0/
 $ ./TaskManagement.API
 ```
 
@@ -86,14 +85,15 @@ But you can still test and utilize it to a extent by calling it's endpoint with 
 <h3>Here is *some* of the endpoints you could try</h3>
 
 ```
->[POST] http://localhost:5108/auth/signup
+# Check if your URL match the server's URL
+>[POST] http://localhost:5000/auth/signup
  Body Raw-Json: {
     "UserName": "Chris_Redfield",
     "Password": "BolderPuncher2",
     "Email": "fakeemail@mail.com"
 }
 
->[POST] http://localhost:5108/auth/login
+>[POST] http://localhost:5000/auth/login
  Body Raw-Json: {
     "UserName": "Chris_Redfield",
     "Password": "BolderPuncher2",
@@ -103,14 +103,14 @@ But you can still test and utilize it to a extent by calling it's endpoint with 
 # You have to copy the returned Token and set it to your Authorization header to proceed
 # Headers -> Authorization : Bearer eyIJPWAjd198jdw890scp...
 
->[POST] http://localhost:5108/tasks/createtask
+>[POST] http://localhost:5000/tasks/createtask
  Body Raw-Json: {
     "Title": "This is the first task",
     "Description": "This is a test task",
     "Priority": 3,
 }
 
->[GET] http://localhost:5108/tasks/createtask
+>[GET] http://localhost:5000/tasks/createtask
 ```
 
 ## Credits
