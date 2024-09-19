@@ -46,7 +46,7 @@ namespace TaskManagement.API.Services
             var iUser = await _repo.GetUserAsync(userId);
 
             if (iUser == null)
-                return new[] { new IdentityError() { Description = "Could not find a user with the specified ID" } };
+                return GenerateIdentityError("Could not find a user with the specified ID");
 
             var result = await _userManager.SetUserNameAsync(iUser, newUsername.NewUsername);
             if (!result.Succeeded)
@@ -62,7 +62,7 @@ namespace TaskManagement.API.Services
             //Checks user password
             var passwordCheck = await _userManager.CheckPasswordAsync(iUser, userPassword);
             if (!passwordCheck)
-                return new[] { new IdentityError() { Description = "Invalid Password" } };
+                return GenerateIdentityError("Invalid password");
 
             var result = await _userManager.DeleteAsync(iUser);
 
@@ -76,7 +76,7 @@ namespace TaskManagement.API.Services
         {
             var iUser = await _repo.GetUserAsync(userId);
             if (iUser == null)
-                return new[] { new IdentityError() { Description = "Could not find a user with the specified ID" } };
+                return GenerateIdentityError("Could not find a user with the specified ID");
 
             var result = await _userManager.DeleteAsync(iUser);
 
@@ -85,5 +85,36 @@ namespace TaskManagement.API.Services
 
             return null;
         }
+
+        public async Task<IEnumerable<IdentityError>?> AddAdminRoleAsync(string userId)
+        {
+            var iUser = await _repo.GetUserAsync(userId);
+            if (iUser == null)
+                return GenerateIdentityError("Could not find a user with the specified ID");
+
+            var result = await _userManager.AddToRoleAsync(iUser, "Admin");
+
+            if (!result.Succeeded)
+                return result.Errors;
+
+            return null;
+        }
+
+        public async Task<IEnumerable<IdentityError>?> RemoveAdminRoleAsync(string userId)
+        {
+            var iUser = await _repo.GetUserAsync(userId);
+            if (iUser == null)
+                return GenerateIdentityError("Could not find a user with the specified ID");
+
+            var result = await _userManager.RemoveFromRoleAsync(iUser, "Admin");
+
+            if (!result.Succeeded)
+                return result.Errors;
+
+            return null;
+        }
+
+        private IEnumerable<IdentityError> GenerateIdentityError(string error)
+            => new[] { new IdentityError() { Description = error } };
     }
 }
