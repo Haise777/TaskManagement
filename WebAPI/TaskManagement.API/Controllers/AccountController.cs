@@ -72,5 +72,27 @@ namespace TaskManagement.API.Controllers
 
             return Ok("Username changed");
         }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("admin/addAdminRole/{userId:guid}")]
+        public async Task<IActionResult> AddAdminRole([FromRoute] string userId)
+        {
+            var result = await _accountService.AddAdminRoleAsync(userId);
+            if (result is not null)
+                return BadRequest(result);
+
+            return Ok("Added user to Admin role");
+        }
+
+        [Authorize(Policy = "AdminOnly")]
+        [HttpPost("admin/removeAdminRole/{userId:guid}")]
+        public async Task<IActionResult> RemoveAdminRole([FromRoute] string userId)
+        {
+            var result = await _accountService.RemoveAdminRoleAsync(userId);
+            if (result is not null)
+                return BadRequest(result);
+
+            return Ok("Removed user from Admin role");
+        }
     }
 }
