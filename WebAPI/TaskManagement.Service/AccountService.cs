@@ -3,6 +3,7 @@ using System.Security.Claims;
 using TaskManagement.API.Contracts;
 using TaskManagement.API.Data.Models;
 using TaskManagement.API.DataTransfer;
+using TaskManagement.Core.DataTransfer;
 
 namespace TaskManagement.API.Services
 {
@@ -116,5 +117,21 @@ namespace TaskManagement.API.Services
 
         private IEnumerable<IdentityError> GenerateIdentityError(string error)
             => new[] { new IdentityError() { Description = error } };
+
+        public async Task<IEnumerable<UserDto>> GetAllUsersAsync()
+        {
+            var users = await _repo.GetAllUsersAsync();
+            var mappedUsers = new List<UserDto>();
+
+            foreach (var user in users)
+            {
+                mappedUsers.Add(new UserDto
+                {
+                    Id = user.Id,
+                    Username = user.UserName,
+                });
+            }
+            return mappedUsers;
+        }
     }
 }

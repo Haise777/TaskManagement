@@ -17,6 +17,15 @@ namespace TaskManagement.API.Controllers
             _accountService = accountService;
         }
 
+        [HttpGet("getAllUsers")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            // Can throw unhandled exceptions if operation fails
+            var result = await _accountService.GetAllUsersAsync();
+
+            return Ok(result);
+        }
+
         [HttpPost("changePassword")]
         public async Task<IActionResult> ChangePassword([FromBody] PasswordChange newPassword)
         {
